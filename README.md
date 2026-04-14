@@ -13,13 +13,13 @@ without adding heavy UI dependencies.
 
 | Modern | Glass | Compact |
 | --- | --- | --- |
-| ![Modern variant](assets/previews/modern.png) | ![Glass variant](assets/previews/glass.png) | ![Compact variant](assets/previews/compact.png) |
+| ![Modern variant](https://raw.githubusercontent.com/iamDjang0o/floating_modern_navbar/main/assets/previews/modern.png) | ![Glass variant](https://raw.githubusercontent.com/iamDjang0o/floating_modern_navbar/main/assets/previews/glass.png) | ![Compact variant](https://raw.githubusercontent.com/iamDjang0o/floating_modern_navbar/main/assets/previews/compact.png) |
 
 ### Scroll Collapse
 
 | Regular | Transparent at scroll end |
 | --- | --- |
-| ![Regular scroll behavior](assets/previews/regular.gif) | ![Transparent scroll end behavior](assets/previews/transparent.gif) |
+| ![Regular scroll behavior](https://raw.githubusercontent.com/iamDjang0o/floating_modern_navbar/main/assets/previews/regular.gif) | ![Transparent scroll end behavior](https://raw.githubusercontent.com/iamDjang0o/floating_modern_navbar/main/assets/previews/transparent.gif) |
 
 ## Installation
 
