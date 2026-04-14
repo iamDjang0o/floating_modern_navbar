@@ -1,0 +1,23 @@
+name: floating_modern_navbar
+description: Minimal and modern floating bottom navigation bar for Flutter with rich customization.
+version: 0.1.0
+homepage: https://github.com/iamDjang0o/floating_modern_navbar
+repository: https://github.com/iamDjang0o/floating_modern_navbar
+issue_tracker: https://github.com/iamDjang0o/floating_modern_navbar/issues
+
+environment:
+  sdk: ^3.10.4
+  flutter: ">=3.22.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+ 
+flutter:
+
+ 
