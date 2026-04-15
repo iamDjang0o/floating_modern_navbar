@@ -5,6 +5,16 @@ homepage: https://github.com/iamDjang0o/floating_modern_navbar
 repository: https://github.com/iamDjang0o/floating_modern_navbar
 issue_tracker: https://github.com/iamDjang0o/floating_modern_navbar/issues
 
+platforms:
+  android:
+  ios:
+  
+topics:
+  - navbar
+  - navigation
+  - bottom-navigation
+  - ui
+  - flutter
 environment:
   sdk: ^3.10.4
   flutter: ">=3.22.0"
