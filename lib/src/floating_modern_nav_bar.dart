@@ -52,46 +52,167 @@ class FloatingModernNavBar extends StatelessWidget {
     this.containerAnimationCurve = Curves.easeOutCubic,
   });
 
+  /// The list of navigation bar items to display.
+  ///
+  /// Each item represents a tab or navigational destination within the bar.
   final List<FloatingNavBarItem> items;
+
+  /// The zero-based index of the currently selected item.
+  ///
+  /// Determines which navigation item is visually highlighted and considered active.
   final int currentIndex;
+
+  /// Callback that is triggered when a navigation item is tapped.
+  ///
+  /// Receives the index of the tapped navigation item.
   final ValueChanged<int> onTap;
+
+  /// The overall height of the navigation bar container in logical pixels.
   final double height;
+
+  /// The outer margin surrounding the navigation bar.
+  ///
+  /// This defines spacing between the navigation bar and other content.
   final EdgeInsets margin;
+
+  /// The internal padding applied to the navigation bar container.
+  ///
+  /// This defines the space between the container edge and the items inside.
   final EdgeInsets padding;
+
+  /// Padding applied to each individual navigation item.
+  ///
+  /// This defines the space inside each item for icons and labels.
   final EdgeInsets itemPadding;
+
+  /// The border radius of the navigation bar container.
+  ///
+  /// Controls the roundness of the navigation bar's corners.
   final double borderRadius;
+
+  /// The border radius applied to each navigation item.
+  ///
+  /// Controls the roundness of each item's background.
   final double itemBorderRadius;
+
+  /// The solid background color of the navigation bar.
+  ///
+  /// If null, the default color from the current theme will be used.
   final Color? backgroundColor;
+
+  /// Optional background gradient of the navigation bar.
+  ///
+  /// If provided, this gradient fills the background instead of `backgroundColor`.
   final Gradient? backgroundGradient;
+
+  /// The color of the border surrounding the navigation bar.
+  ///
+  /// If null, no border is displayed unless overridden by a visual variant.
   final Color? borderColor;
+
+  /// The width of the border surrounding the navigation bar.
   final double borderWidth;
+
+  /// The elevation, in logical pixels, of the navigation bar's Material surface.
+  ///
+  /// Sets the z-coordinate at which to place this bar relative to its parent.
   final double elevation;
+
+  /// The color of the shadow rendered by the navigation bar's elevation.
+  ///
+  /// Used when elevation is greater than 0.
   final Color? shadowColor;
+
+  /// A list of custom box shadows to apply to the navigation bar container.
   final List<BoxShadow>? boxShadow;
+
+  /// The background color used for the currently selected navigation item.
   final Color? selectedItemColor;
+
+  /// The background color used for unselected navigation items.
   final Color? unselectedItemColor;
+
+  /// The text color for the label of the selected navigation item.
   final Color? selectedLabelColor;
+
+  /// The text color for labels of unselected navigation items.
   final Color? unselectedLabelColor;
+
+  /// The color of the active indicator beneath or around the selected item.
   final Color? indicatorColor;
+
+  /// The base icon size, in logical pixels, for navigation items.
   final double iconSize;
+
+  /// The scale factor applied to the icon of the selected item.
+  ///
+  /// Use to visually emphasize the selected icon.
   final double selectedIconScale;
+
+  /// Whether to display labels for navigation items.
+  ///
+  /// If false, only icons are shown.
   final bool showLabels;
+
+  /// Text style applied to the label of the selected navigation item.
   final TextStyle? selectedLabelStyle;
+
+  /// Text style applied to labels of unselected navigation items.
   final TextStyle? unselectedLabelStyle;
+
+  /// How to align the contents of each navigation item along the main axis.
+  ///
+  /// Common values are [MainAxisAlignment.center] or [MainAxisAlignment.start].
   final MainAxisAlignment itemMainAxisAlignment;
+
+  /// Whether feedback (such as haptic or acoustic) is enabled for tap interactions.
   final bool enableFeedback;
+
+  /// The color of the Material splash effect shown on tap.
   final Color? splashColor;
+
+  /// The color of the highlight shown during a press interaction.
   final Color? highlightColor;
+
+  /// The duration of navigation item state transition animations.
   final Duration animationDuration;
+
+  /// The curve used for navigation item state transition animations.
   final Curve animationCurve;
+
+  /// The visual variant preset to apply to the navigation bar.
+  ///
+  /// Determines the overall look, such as glassmorphic or modern.
   final FloatingNavBarVariant variant;
+
+  /// The intensity of the backdrop blur, used for translucent effects.
+  ///
+  /// Only used in certain variants like glassmorphism.
   final double backdropBlur;
+
+  /// The progress of the bar's collapse animation.
+  ///
+  /// 0.0 corresponds to fully expanded; 1.0 to fully collapsed.
   final double collapseProgress;
+
+  /// The progress of the bar's transparency animation.
+  ///
+  /// 0.0 corresponds to fully opaque; 1.0 to fully transparent.
   final double transparencyProgress;
+
+  /// The factor by which the navigation bar scales down during collapse.
   final double collapseScaleFactor;
+
+  /// The vertical height reduction, in logical pixels, during collapse.
   final double collapseHeightFactor;
+
+  /// The amount by which the bottom inset (margin) is reduced during collapse.
   final double collapseBottomInsetFactor;
+
+  /// The duration of container-level collapse and expand animations.
   final Duration containerAnimationDuration;
+
+  /// The animation curve used for container-level collapse and expand.
   final Curve containerAnimationCurve;
 
   @override

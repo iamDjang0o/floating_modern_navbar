@@ -16,9 +16,27 @@ class FloatingNavBarScrollContainer extends StatefulWidget {
     this.transparentAtScrollEnd = true,
   });
 
+  /// The widget below the navigation bar, typically a scrollable content widget.
   final Widget child;
+
+  /// A builder function that returns the navigation bar widget.
+  /// 
+  /// Receives the current [BuildContext], the collapse progress, and
+  /// the transparency progress, which can be used to animate appearance.
   final FloatingNavBarBuilder navBarBuilder;
+
+  /// The scroll distance, in logical pixels, after which the navigation bar
+  /// will be fully collapsed.
+  ///
+  /// Values above 0 specify how far the user must scroll for collapse
+  /// (e.g. 140.0 for a medium-range collapse).
   final double collapseDistance;
+
+  /// Whether the navigation bar should become fully transparent at the maximum
+  /// scroll extent (i.e., when the user has scrolled to the end).
+  ///
+  /// If true, the navigation bar fades out as the user scrolls to the end;
+  /// if false, the bar remains visible but may still collapse.
   final bool transparentAtScrollEnd;
 
   @override

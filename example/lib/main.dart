@@ -37,7 +37,6 @@ class _ExampleHomePageState extends State<ExampleHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: AppBar(title: Text('test'), centerTitle: true),
       bottomNavigationBar: FloatingNavBarScrollContainer(
