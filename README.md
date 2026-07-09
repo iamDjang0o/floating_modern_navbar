@@ -25,7 +25,7 @@ without adding heavy UI dependencies.
 
 ```yaml
 dependencies:
-  floating_modern_navbar: ^0.1.0
+  floating_modern_navbar:
 ```
 
 ## Core Components
