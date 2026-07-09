@@ -23,6 +23,11 @@ without adding heavy UI dependencies.
 
 ## Installation
 
+```cmd
+flutter pub add floating_modern_navbar
+```
+or 
+
 ```yaml
 dependencies:
   floating_modern_navbar:
