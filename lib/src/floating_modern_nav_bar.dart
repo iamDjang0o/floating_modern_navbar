@@ -13,11 +13,12 @@ class FloatingModernNavBar extends StatelessWidget {
     required this.currentIndex,
     required this.onTap,
     this.height = 74,
+    this.axis = Axis.horizontal,
     this.margin = const EdgeInsets.fromLTRB(16, 0, 16, 16),
     this.padding = const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
     this.itemPadding = const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-    this.borderRadius = 28,
-    this.itemBorderRadius = 18,
+    this.borderRadius = 36,
+    this.itemBorderRadius = 28,
     this.backgroundColor,
     this.backgroundGradient,
     this.borderColor,
@@ -42,7 +43,7 @@ class FloatingModernNavBar extends StatelessWidget {
     this.animationDuration = const Duration(milliseconds: 240),
     this.animationCurve = Curves.easeOutCubic,
     this.variant = FloatingNavBarVariant.modern,
-    this.backdropBlur = 16,
+    this.backdropBlur = 24,
     this.collapseProgress = 0,
     this.transparencyProgress = 0,
     this.collapseScaleFactor = 0.2,
@@ -67,8 +68,12 @@ class FloatingModernNavBar extends StatelessWidget {
   /// Receives the index of the tapped navigation item.
   final ValueChanged<int> onTap;
 
-  /// The overall height of the navigation bar container in logical pixels.
+  /// The horizontal surface height, excluding margin and safe-area spacing.
+  /// Vertical rails use fixed 56-pixel item slots instead.
   final double height;
+
+  /// Vertical rails should be hosted beside content, not in bottomNavigationBar.
+  final Axis axis;
 
   /// The outer margin surrounding the navigation bar.
   ///
@@ -107,7 +112,8 @@ class FloatingModernNavBar extends StatelessWidget {
 
   /// The color of the border surrounding the navigation bar.
   ///
-  /// If null, no border is displayed unless overridden by a visual variant.
+  /// If null, uses the preset border (a glass highlight or themed outline).
+  /// Use Colors.transparent to hide the border.
   final Color? borderColor;
 
   /// The width of the border surrounding the navigation bar.
@@ -132,13 +138,14 @@ class FloatingModernNavBar extends StatelessWidget {
   /// The background color used for unselected navigation items.
   final Color? unselectedItemColor;
 
-  /// The text color for the label of the selected navigation item.
+  /// The icon and label color of the selected navigation item.
   final Color? selectedLabelColor;
 
-  /// The text color for labels of unselected navigation items.
+  /// The icon and label color of unselected navigation items.
   final Color? unselectedLabelColor;
 
-  /// The color of the active indicator beneath or around the selected item.
+  /// Badge background color; defaults to the theme primary color.
+  /// This does not draw a separate selection indicator.
   final Color? indicatorColor;
 
   /// The base icon size, in logical pixels, for navigation items.
@@ -197,7 +204,8 @@ class FloatingModernNavBar extends StatelessWidget {
 
   /// The progress of the bar's transparency animation.
   ///
-  /// 0.0 corresponds to fully opaque; 1.0 to fully transparent.
+  /// 0.0 preserves the normal material appearance; 1.0 hides the whole bar.
+  /// This is independent of the glass surface tint.
   final double transparencyProgress;
 
   /// The factor by which the navigation bar scales down during collapse.
@@ -209,15 +217,17 @@ class FloatingModernNavBar extends StatelessWidget {
   /// The amount by which the bottom inset (margin) is reduced during collapse.
   final double collapseBottomInsetFactor;
 
-  /// The duration of container-level collapse and expand animations.
+  /// The duration of whole-bar scale and opacity transitions.
   final Duration containerAnimationDuration;
 
-  /// The animation curve used for container-level collapse and expand.
+  /// The curve used for whole-bar scale and opacity transitions.
   final Curve containerAnimationCurve;
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final glass = variant == FloatingNavBarVariant.glassmorphism;
+    final dark = Theme.of(context).brightness == Brightness.dark;
     final clampedCollapse = collapseProgress.clamp(0.0, 1.0);
     final clampedTransparency = transparencyProgress.clamp(0.0, 1.0);
     final barOpacity = (1 - clampedTransparency).clamp(0.0, 1.0);
@@ -258,24 +268,35 @@ class FloatingModernNavBar extends StatelessWidget {
     final effectiveShowLabels = variant == FloatingNavBarVariant.compact
         ? false
         : showLabels;
-    final effectiveBackground = variant == FloatingNavBarVariant.glassmorphism
-        ? (backgroundColor ?? colorScheme.surface).withValues(alpha: 0.55)
+    final effectiveBackground = glass
+        ? (backgroundColor ??
+              (dark
+                  ? const Color(0xFF20232B).withValues(alpha: 0.42)
+                  : Colors.white.withValues(alpha: 0.32)))
         : (backgroundColor ?? colorScheme.surface);
     final effectiveBorderColor = variant == FloatingNavBarVariant.glassmorphism
-        ? (borderColor ?? Colors.white.withValues(alpha: 0.28))
+        ? (borderColor ?? Colors.white.withValues(alpha: dark ? 0.22 : 0.65))
         : borderColor;
     final defaultGradient = LinearGradient(
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
       colors: [
-        effectiveBackground,
+        glass
+            ? Color.lerp(
+                effectiveBackground,
+                Colors.white.withValues(alpha: dark ? 0.12 : 0.48),
+                0.35,
+              )!
+            : effectiveBackground,
         Color.lerp(effectiveBackground, colorScheme.primary, 0.05) ??
             effectiveBackground,
       ],
     );
     final defaultShadow = [
       BoxShadow(
-        color: (shadowColor ?? colorScheme.shadow).withValues(alpha: 0.14),
+        color: (shadowColor ?? colorScheme.shadow).withValues(
+          alpha: glass ? 0.10 : 0.12,
+        ),
         blurRadius: 26,
         offset: const Offset(0, 12),
       ),
@@ -285,47 +306,52 @@ class FloatingModernNavBar extends StatelessWidget {
         offset: const Offset(0, 6),
       ),
     ];
-    return AnimatedOpacity(
-      duration: containerAnimationDuration,
-      curve: containerAnimationCurve,
-      opacity: barOpacity,
-      child: AnimatedScale(
-        duration: containerAnimationDuration,
+    return IgnorePointer(
+      ignoring: barOpacity == 0,
+      child: AnimatedOpacity(
+        duration: MediaQuery.of(context).disableAnimations
+            ? Duration.zero
+            : containerAnimationDuration,
         curve: containerAnimationCurve,
-        scale: barScale,
-        alignment: Alignment.bottomCenter,
-        child: SafeArea(
-          minimum: effectiveMargin,
-          child: Material(
-            type: MaterialType.transparency,
-            child: SizedBox(
-              height: animatedHeight,
-              child: Container(
-                height: animatedHeight,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(effectiveBorderRadius),
-                  boxShadow: boxShadow ?? defaultShadow,
-                ),
-                child: _clipNavBarShape(
-                  effectiveBorderRadius: effectiveBorderRadius,
-                  child: Material(
-                    elevation: elevation,
-                    shadowColor: (shadowColor ?? colorScheme.shadow).withValues(
-                      alpha: 0.2,
-                    ),
-                    color: backgroundGradient == null
-                        ? effectiveBackground
-                        : null,
-                    child: _buildContainerContent(
-                      colorScheme: colorScheme,
-                      gradient: backgroundGradient ?? defaultGradient,
-                      effectiveBorderRadius: effectiveBorderRadius,
-                      effectiveBorderColor: effectiveBorderColor,
-                      effectivePadding: effectivePadding,
-                      effectiveItemPadding: effectiveItemPadding,
-                      effectiveItemRadius: effectiveItemRadius,
-                      effectiveIconSize: effectiveIconSize,
-                      effectiveShowLabels: effectiveShowLabels,
+        opacity: barOpacity,
+        child: AnimatedScale(
+          duration: MediaQuery.of(context).disableAnimations
+              ? Duration.zero
+              : containerAnimationDuration,
+          curve: containerAnimationCurve,
+          scale: barScale,
+          alignment: Alignment.bottomCenter,
+          child: SafeArea(
+            minimum: effectiveMargin,
+            child: Material(
+              type: MaterialType.transparency,
+              child: SizedBox(
+                width: axis == Axis.vertical ? 72 : null,
+                height: axis == Axis.vertical ? null : animatedHeight,
+                child: Container(
+                  height: axis == Axis.vertical ? null : animatedHeight,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(effectiveBorderRadius),
+                    boxShadow: boxShadow ?? defaultShadow,
+                  ),
+                  child: _clipNavBarShape(
+                    effectiveBorderRadius: effectiveBorderRadius,
+                    child: Material(
+                      elevation: elevation,
+                      shadowColor: (shadowColor ?? colorScheme.shadow)
+                          .withValues(alpha: 0.2),
+                      color: Colors.transparent,
+                      child: _buildContainerContent(
+                        colorScheme: colorScheme,
+                        gradient: backgroundGradient ?? defaultGradient,
+                        effectiveBorderRadius: effectiveBorderRadius,
+                        effectiveBorderColor: effectiveBorderColor,
+                        effectivePadding: effectivePadding,
+                        effectiveItemPadding: effectiveItemPadding,
+                        effectiveItemRadius: effectiveItemRadius,
+                        effectiveIconSize: effectiveIconSize,
+                        effectiveShowLabels: effectiveShowLabels,
+                      ),
                     ),
                   ),
                 ),
@@ -348,7 +374,7 @@ class FloatingModernNavBar extends StatelessWidget {
     required double effectiveIconSize,
     required bool effectiveShowLabels,
   }) {
-    final content = Ink(
+    final content = DecoratedBox(
       decoration: BoxDecoration(
         gradient: gradient,
         borderRadius: BorderRadius.circular(effectiveBorderRadius),
@@ -361,7 +387,11 @@ class FloatingModernNavBar extends StatelessWidget {
       ),
       child: Padding(
         padding: effectivePadding,
-        child: Row(
+        child: Flex(
+          direction: axis,
+          mainAxisSize: axis == Axis.vertical
+              ? MainAxisSize.min
+              : MainAxisSize.max,
           children: _buildRowChildren(
             colorScheme: colorScheme,
             effectiveItemPadding: effectiveItemPadding,
@@ -396,7 +426,7 @@ class FloatingModernNavBar extends StatelessWidget {
     for (var index = 0; index < items.length; index++) {
       final item = items[index];
       children.add(
-        Expanded(
+        _itemSlot(
           child: _FloatingModernNavBarItem(
             item: item,
             isSelected: index == currentIndex,
@@ -430,6 +460,11 @@ class FloatingModernNavBar extends StatelessWidget {
       );
     }
     return children;
+  }
+
+  Widget _itemSlot({required Widget child}) {
+    if (axis == Axis.horizontal) return Expanded(child: child);
+    return SizedBox(height: 56, child: child);
   }
 
   Widget _clipNavBarShape({
@@ -495,97 +530,121 @@ class _FloatingModernNavBarItem extends StatelessWidget {
     final labelTheme = Theme.of(context).textTheme.labelMedium;
     final activeIcon = item.activeIcon ?? item.icon;
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 2),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(itemBorderRadius),
-          enableFeedback: enableFeedback,
-          splashColor: splashColor,
-          highlightColor: highlightColor,
-          child: AnimatedContainer(
-            duration: animationDuration,
-            curve: animationCurve,
-            padding: itemPadding,
-            decoration: BoxDecoration(
-              color: isSelected ? selectedItemColor : unselectedItemColor,
+    return Semantics(
+      label: item.label,
+      selected: isSelected,
+      button: true,
+      child: Tooltip(
+        message: item.tooltip ?? item.label,
+        excludeFromSemantics: true,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 2),
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: onTap,
               borderRadius: BorderRadius.circular(itemBorderRadius),
-            ),
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                return Center(
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(
-                      maxWidth: constraints.maxWidth,
-                      maxHeight: constraints.maxHeight,
-                    ),
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      alignment: Alignment.center,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: itemMainAxisAlignment,
-                        children: [
-                          Stack(
-                            clipBehavior: Clip.none,
+              enableFeedback: enableFeedback,
+              splashColor: splashColor,
+              highlightColor: highlightColor,
+              child: AnimatedContainer(
+                duration: MediaQuery.of(context).disableAnimations
+                    ? Duration.zero
+                    : animationDuration,
+                curve: animationCurve,
+                padding: itemPadding,
+                decoration: BoxDecoration(
+                  color: isSelected ? selectedItemColor : unselectedItemColor,
+                  border: isSelected
+                      ? Border.all(
+                          color: selectedLabelColor.withValues(alpha: 0.08),
+                        )
+                      : null,
+                  borderRadius: BorderRadius.circular(itemBorderRadius),
+                ),
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    return Center(
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          maxWidth: constraints.maxWidth,
+                          maxHeight: constraints.maxHeight,
+                        ),
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: Alignment.center,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: itemMainAxisAlignment,
                             children: [
-                              AnimatedScale(
-                                duration: animationDuration,
-                                curve: animationCurve,
-                                scale: isSelected ? selectedIconScale : 1,
-                                child: Icon(
-                                  isSelected ? activeIcon : item.icon,
-                                  size: iconSize,
-                                  color: isSelected
-                                      ? selectedLabelColor
-                                      : unselectedLabelColor,
-                                ),
+                              Stack(
+                                clipBehavior: Clip.none,
+                                children: [
+                                  AnimatedScale(
+                                    duration:
+                                        MediaQuery.of(context).disableAnimations
+                                        ? Duration.zero
+                                        : animationDuration,
+                                    curve: animationCurve,
+                                    scale: isSelected ? selectedIconScale : 1,
+                                    child: Icon(
+                                      isSelected ? activeIcon : item.icon,
+                                      size: iconSize,
+                                      color: isSelected
+                                          ? selectedLabelColor
+                                          : unselectedLabelColor,
+                                    ),
+                                  ),
+                                  if ((item.badgeCount ?? 0) > 0)
+                                    Positioned(
+                                      top: -6,
+                                      right: -10,
+                                      child: _Badge(
+                                        count: item.badgeCount!,
+                                        color: indicatorColor,
+                                      ),
+                                    ),
+                                ],
                               ),
-                              if ((item.badgeCount ?? 0) > 0)
-                                Positioned(
-                                  top: -6,
-                                  right: -10,
-                                  child: _Badge(
-                                    count: item.badgeCount!,
-                                    color: indicatorColor,
+                              if (showLabels) const SizedBox(height: 4),
+                              if (showLabels)
+                                AnimatedDefaultTextStyle(
+                                  duration:
+                                      MediaQuery.of(context).disableAnimations
+                                      ? Duration.zero
+                                      : animationDuration,
+                                  curve: animationCurve,
+                                  style:
+                                      (isSelected
+                                              ? (selectedLabelStyle ??
+                                                    labelTheme)
+                                              : (unselectedLabelStyle ??
+                                                    labelTheme))
+                                          ?.copyWith(
+                                            color: isSelected
+                                                ? selectedLabelColor
+                                                : unselectedLabelColor,
+                                            fontWeight: isSelected
+                                                ? FontWeight.w700
+                                                : FontWeight.w500,
+                                          ) ??
+                                      const TextStyle(),
+                                  child: Text(
+                                    item.label,
+                                    semanticsLabel: '',
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    textAlign: TextAlign.center,
                                   ),
                                 ),
                             ],
                           ),
-                          if (showLabels) const SizedBox(height: 4),
-                          if (showLabels)
-                            AnimatedDefaultTextStyle(
-                              duration: animationDuration,
-                              curve: animationCurve,
-                              style:
-                                  (isSelected
-                                          ? (selectedLabelStyle ?? labelTheme)
-                                          : (unselectedLabelStyle ??
-                                                labelTheme))
-                                      ?.copyWith(
-                                        color: isSelected
-                                            ? selectedLabelColor
-                                            : unselectedLabelColor,
-                                        fontWeight: isSelected
-                                            ? FontWeight.w700
-                                            : FontWeight.w500,
-                                      ) ??
-                                  const TextStyle(),
-                              child: Text(
-                                item.label,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                textAlign: TextAlign.center,
-                              ),
-                            ),
-                        ],
+                        ),
                       ),
-                    ),
-                  ),
-                );
-              },
+                    );
+                  },
+                ),
+              ),
             ),
           ),
         ),

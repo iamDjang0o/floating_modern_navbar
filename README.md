@@ -1,201 +1,190 @@
 # floating_modern_navbar
 
-A minimal, modern, and highly customizable floating bottom navigation bar for
-Flutter.
+Floating navigation for Flutter with Modern, Glass, and Compact styles.
+Use a bottom bar on everyday phones, or let the adaptive page host position a
+side rail in iPhone Duo's native bar region.
 
-`floating_modern_navbar` is designed for teams that want polished visual
-defaults while keeping full control over layout, color, behavior, and animation
-without adding heavy UI dependencies.
+- Apple-inspired glass with light/dark appearance, blur, and rounded selections.
+- Automatic bottom/side placement and manual left/right previews.
+- Active icons, labels, tooltips, unread badges, and tap feedback.
+- Configurable colors, shapes, spacing, shadows, and animations.
+- Optional bottom-bar collapse and transparency while scrolling.
 
-## Preview
+## Start here
 
-### Variants
-
-| Modern | Glass | Compact |
-| --- | --- | --- |
-| ![Modern variant](https://raw.githubusercontent.com/iamDjang0o/floating_modern_navbar/main/assets/previews/modern.png) | ![Glass variant](https://raw.githubusercontent.com/iamDjang0o/floating_modern_navbar/main/assets/previews/glass.png) | ![Compact variant](https://raw.githubusercontent.com/iamDjang0o/floating_modern_navbar/main/assets/previews/compact.png) |
-
-### Scroll Collapse
-
-| Regular | Transparent at scroll end |
+| I want to… | Read |
 | --- | --- |
-| ![Regular scroll behavior](https://raw.githubusercontent.com/iamDjang0o/floating_modern_navbar/main/assets/previews/regular.gif) | ![Transparent scroll end behavior](https://raw.githubusercontent.com/iamDjang0o/floating_modern_navbar/main/assets/previews/transparent.gif) |
+| Add navigation now | [Quick start](#quick-start) |
+| Set up automatic Duo placement | [Duo setup and safe areas](docs/USAGE.md#3-enable-automatic-iphone-duo-placement) |
+| Customize glass, icons, badges, or motion | [Usage guide](docs/USAGE.md) |
+| Look up a property or its default | [Complete API reference](docs/API.md) |
+| Try the interactive gallery | [Example app](example/README.md) |
+| Fix an integration issue | [Troubleshooting](docs/USAGE.md#troubleshooting) |
 
 ## Installation
 
-```cmd
+For a published release:
+
+```sh
 flutter pub add floating_modern_navbar
 ```
-or 
+
+The adaptive API and sidebar fix in this checkout need a release that contains
+them. Until you publish/use such a release, point your app at this local repo:
 
 ```yaml
 dependencies:
+  flutter:
+    sdk: flutter
   floating_modern_navbar:
+    path: ../floating_modern_navbar # Adjust relative to your app's pubspec.yaml.
 ```
 
-## Core Components
+Then run `flutter pub get`. Use a Flutter SDK with Dart 3.10.4 or newer within
+the Dart 3 series, as required by this package's SDK constraint. Android and
+iOS are the declared supported platforms. Automatic Duo placement additionally
+requires building with the iOS 27.1+ SDK and running on a supported iOS 27.1+
+configuration. Other configurations fall back to bottom navigation.
 
-### `FloatingModernNavBar`
+## Quick start
 
-The main navigation widget. It renders the floating container, item states,
-selection animation, labels, badges, and style variants.
-
-### `FloatingNavBarItem`
-
-The model used for each tab item.
-
-- `icon`: default icon
-- `activeIcon`: optional selected-state icon
-- `label`: item label text
-- `tooltip`: optional semantic tooltip
-- `badgeCount`: optional badge value
-
-### `FloatingNavBarScrollContainer`
-
-A scroll-aware wrapper that includes:
-
-- internal `NotificationListener<ScrollNotification>`
-- internal progress tracking via `ValueNotifier`
-- automatic `collapseProgress` and `transparencyProgress` updates
-- optional end-of-scroll transparency behavior
-
-Use this when you want the floating bar behavior fully managed by the package.
-
-### `FloatingNavBarVariant`
-
-Prebuilt visual styles:
-
-- `FloatingNavBarVariant.modern`: balanced default style for general products
-- `FloatingNavBarVariant.glassmorphism`: frosted/translucent look with blur
-- `FloatingNavBarVariant.compact`: reduced vertical footprint and dense layout
-
-## Feature Overview
-
-- **Layout Control:** `height`, `margin`, `padding`, `itemPadding`,
-  `borderRadius`, `itemBorderRadius`
-- **Visual Styling:** `backgroundColor` / `backgroundGradient`, `borderColor`,
-  `borderWidth`, `shadowColor`, `boxShadow`, `elevation`
-- **State Colors:** `selectedItemColor`, `unselectedItemColor`,
-  `selectedLabelColor`, `unselectedLabelColor`, `indicatorColor`
-- **Typography & Icons:** `iconSize`, `selectedIconScale`, `showLabels`,
-  `selectedLabelStyle`, `unselectedLabelStyle`
-- **Interaction:** `splashColor`, `highlightColor`, `enableFeedback`
-- **Motion:** `animationDuration`, `animationCurve`,
-  `collapseProgress`, `transparencyProgress`
-- **Scroll Integration:** `FloatingNavBarScrollContainer` with
-  `collapseDistance` and `transparentAtScrollEnd`
-
-## Basic Usage
+Copy this complete example into your app's `lib/main.dart`. It connects three
+tabs to pages, keeps those pages mounted, and enables automatic placement.
 
 ```dart
-import 'package:floating_modern_navbar/floating_modern_navbar.dart';
 import 'package:flutter/material.dart';
+import 'package:floating_modern_navbar/floating_modern_navbar.dart';
 
-class DemoPage extends StatefulWidget {
-  const DemoPage({super.key});
+void main() => runApp(const MaterialApp(home: NavigationDemo()));
+
+class NavigationDemo extends StatefulWidget {
+  const NavigationDemo({super.key});
 
   @override
-  State<DemoPage> createState() => _DemoPageState();
+  State<NavigationDemo> createState() => _NavigationDemoState();
 }
 
-class _DemoPageState extends State<DemoPage> {
-  int index = 0;
+class _NavigationDemoState extends State<NavigationDemo> {
+  int selectedIndex = 0;
+
+  static const items = [
+    FloatingNavBarItem(
+      icon: Icons.home_outlined,
+      activeIcon: Icons.home_rounded,
+      label: 'Home',
+    ),
+    FloatingNavBarItem(icon: Icons.search, label: 'Search'),
+    FloatingNavBarItem(
+      icon: Icons.inbox_outlined,
+      activeIcon: Icons.inbox,
+      label: 'Inbox',
+      tooltip: 'Open your inbox',
+      badgeCount: 3,
+    ),
+  ];
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: const SizedBox.expand(),
-      bottomNavigationBar: FloatingModernNavBar(
-        currentIndex: index,
-        onTap: (value) => setState(() => index = value),
-        items: const [
-          FloatingNavBarItem(icon: Icons.home_rounded, label: 'Home'),
-          FloatingNavBarItem(icon: Icons.search_rounded, label: 'Search'),
-          FloatingNavBarItem(icon: Icons.person_rounded, label: 'Profile'),
-        ],
+    return FloatingAdaptiveNavScaffold(
+      items: items,
+      currentIndex: selectedIndex,
+      onTap: (index) => setState(() => selectedIndex = index),
+      variant: FloatingNavBarVariant.glassmorphism,
+      placement: FloatingNavBarPlacement.automatic,
+      body: SafeArea(
+        child: IndexedStack(
+          index: selectedIndex,
+          children: const [
+            Center(child: Text('Home')),
+            Center(child: Text('Search')),
+            Center(child: Text('Inbox')),
+          ],
+        ),
       ),
     );
   }
 }
 ```
 
-## Advanced Customization
+`currentIndex` selects a tab; `onTap` updates your app's state. The package does
+not change routes for you. Here, `IndexedStack` displays the selected page and
+keeps the others mounted.
 
-```dart
-FloatingModernNavBar(
-  currentIndex: currentIndex,
-  onTap: onTap,
-  variant: FloatingNavBarVariant.glassmorphism,
-  height: 78,
-  margin: const EdgeInsets.fromLTRB(18, 0, 18, 20),
-  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-  itemPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 10),
-  borderRadius: 30,
-  itemBorderRadius: 20,
-  backgroundGradient: const LinearGradient(
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-    colors: [Color(0xFF10131A), Color(0xFF1A2030)],
-  ),
-  borderColor: Colors.white.withValues(alpha: 0.15),
-  selectedItemColor: Colors.white.withValues(alpha: 0.12),
-  selectedLabelColor: Colors.white,
-  unselectedLabelColor: Colors.white.withValues(alpha: 0.72),
-  indicatorColor: const Color(0xFF56CCF2),
-  iconSize: 23,
-  selectedIconScale: 1.1,
-  items: const [
-    FloatingNavBarItem(
-      icon: Icons.home_outlined,
-      activeIcon: Icons.home_rounded,
-      label: 'Home',
-    ),
-    FloatingNavBarItem(
-      icon: Icons.shopping_bag_outlined,
-      activeIcon: Icons.shopping_bag_rounded,
-      label: 'Orders',
-      badgeCount: 3,
-    ),
-    FloatingNavBarItem(
-      icon: Icons.person_outline_rounded,
-      activeIcon: Icons.person_rounded,
-      label: 'Profile',
-    ),
-  ],
-)
-```
+Use `FloatingAdaptiveNavScaffold` as the page host, with `SafeArea` inside its
+`body`. It already creates a Scaffold and accounts for the side bar's space.
+There is no need to wrap the whole host in another `SafeArea`.
 
-## Scroll-managed Usage
+## Which widget should I use?
 
-Use this mode when you want the package to manage scroll tracking, collapse, and
-transparency behavior.
+| Component | Purpose |
+| --- | --- |
+| `FloatingAdaptiveNavScaffold` | Easiest automatic bottom/side layout. Exposes content, destinations, selection, preset, placement, and page background. |
+| `FloatingModernNavBar` | Standalone bar with all styling and animation controls. Add it to your own Scaffold or layout. |
+| `FloatingNavBarScrollContainer` | Overlays a bottom bar and supplies collapse/fade progress from scrolling. |
+| `FloatingNavBarItem` | Describes a destination's icons, label, tooltip, and badge. |
 
-```dart
-FloatingNavBarScrollContainer(
-  collapseDistance: 140,
-  transparentAtScrollEnd: true,
-  child: yourScrollableBody,
-  navBarBuilder: (context, collapseProgress, transparencyProgress) {
-    return FloatingModernNavBar(
-      items: items,
-      currentIndex: currentIndex,
-      onTap: onTap,
-      collapseProgress: collapseProgress,
-      transparencyProgress: transparencyProgress,
-    );
-  },
-)
-```
+The adaptive host defaults to Glass; the standalone bar defaults to Modern.
+The scroll wrapper is a separate bottom-bar integration and does not add
+scroll collapse to the adaptive scaffold.
 
-Set `transparentAtScrollEnd: false` to keep the bar visible at the bottom of
-the scroll.
+## Ready-to-run recipes
 
-## Example App
+- [Automatic navigation](docs/examples/adaptive.dart): bottom/side placement and persistent tab pages.
+- [Styled glass bottom bar](docs/examples/styled_bottom.dart): a visible backdrop, custom colors, sizes, animation, and badges.
+- [Scroll-aware bottom bar](docs/examples/scroll.dart): shrink on scroll and optionally fade at the end.
 
-A complete runnable sample is included in `example/`.
+From `example/`, run a recipe with `flutter run -t ../docs/examples/adaptive.dart`
+(or substitute the other filename). To explore all presets interactively:
 
-```bash
+```sh
 cd example
 flutter pub get
 flutter run
 ```
+
+## Previews
+
+Captured from the current Flutter widgets at the same phone size.
+
+### Variants
+
+| Modern | Glass | Compact |
+| --- | --- | --- |
+| ![Modern variant](assets/previews/modern.png) | ![Glass variant](assets/previews/glass.png) | ![Compact variant](assets/previews/compact.png) |
+
+### Glass appearance and side placement
+
+| Light | Dark | Side preview |
+| --- | --- | --- |
+| ![Light glass](assets/previews/glass-light.png) | ![Dark glass](assets/previews/glass-dark.png) | ![Side glass](assets/previews/glass-side.png) |
+
+The side image uses the manual preview setting; it is not a capture from Duo hardware.
+
+### Scroll collapse
+
+| Collapse and expand | Fade at scroll end |
+| --- | --- |
+| ![Regular scroll behavior](assets/previews/regular.gif) | ![Transparent scroll end behavior](assets/previews/transparent.gif) |
+
+These animations use `FloatingNavBarScrollContainer` with the example gallery.
+They show scrolling down to the end and back up. The adaptive scaffold itself
+does not add scroll-collapse behavior.
+
+See [preview regeneration instructions](example/README.md#regenerate-previews).
+
+
+## A few useful details
+
+Glass is rendered in Flutter and approximates Apple's appearance; it is not
+UIKit's native Liquid Glass material. Let content extend behind the bar for
+visible blur. The adaptive host does this for bottom placement; set
+`extendBody: true` when using your own Scaffold.
+
+Automatic Duo placement follows iOS's current bar edge and layout region, not
+a screen-width guess. The sidebar spacing fix has been confirmed in the Duo
+simulator by the project maintainer. See [setup and safe-area guidance](docs/USAGE.md#3-enable-automatic-iphone-duo-placement)
+for build requirements and integration details.
+
+Every constructor option, preset override, and current limitation is listed in
+the [API reference](docs/API.md). For step-by-step integration and common fixes,
+continue with the [usage guide](docs/USAGE.md).
