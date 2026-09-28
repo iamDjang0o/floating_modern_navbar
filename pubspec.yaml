@@ -1,6 +1,6 @@
 name: floating_modern_navbar
-description: Minimal and modern floating bottom navigation bar for Flutter with rich customization.
-version: 0.1.1+5
+description: Flutter floating navigation bar with Apple-inspired glass, automatic iPhone Duo sidebar support, badges, and scroll animations.
+version: 0.2.0
 homepage: https://github.com/iamDjang0o/floating_modern_navbar
 repository: https://github.com/iamDjang0o/floating_modern_navbar
 issue_tracker: https://github.com/iamDjang0o/floating_modern_navbar/issues
@@ -10,11 +10,19 @@ platforms:
   ios:
   
 topics:
-  - navbar
   - navigation
   - bottom-navigation
-  - ui
+  - glassmorphism
+  - iphone-duo
   - flutter
+screenshots:
+  - description: Apple-inspired glass floating navigation in light mode.
+    path: assets/previews/glass-light.png
+  - description: Glass navigation with dark appearance.
+    path: assets/previews/glass-dark.png
+  - description: Side navigation layout preview for adaptive iPhone Duo support.
+    path: assets/previews/glass-side.png
+
 environment:
   sdk: ^3.10.4
   flutter: ">=3.22.0"

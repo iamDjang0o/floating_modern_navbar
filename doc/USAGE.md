@@ -48,7 +48,7 @@ settings work without Duo hardware, and `.bottom` forces bottom placement.
 
 For automatic native placement:
 
-1. Use the updated package checkout or a release containing the adaptive API.
+1. Use `floating_modern_navbar` version 0.2.0 or newer.
 2. Build the app with Xcode's iOS 27.1 SDK or newer.
 3. Run on an iOS 27.1+ device/simulator that supplies the vertical-bar trait.
 4. Stop and rebuild the app after adding or changing the native plugin. Hot
@@ -257,9 +257,9 @@ From the repository's `example/` directory:
 ```sh
 flutter pub get
 flutter run                               # Interactive gallery
-flutter run -t ../docs/examples/adaptive.dart
-flutter run -t ../docs/examples/styled_bottom.dart
-flutter run -t ../docs/examples/scroll.dart
+flutter run -t ../doc/examples/adaptive.dart
+flutter run -t ../doc/examples/styled_bottom.dart
+flutter run -t ../doc/examples/scroll.dart
 ```
 
 The three documentation entry points are complete apps. The smaller snippets

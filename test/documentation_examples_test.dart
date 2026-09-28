@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:floating_modern_navbar/floating_modern_navbar.dart';
-import '../docs/examples/adaptive.dart' as adaptive;
-import '../docs/examples/styled_bottom.dart' as styled;
-import '../docs/examples/scroll.dart' as scrolling;
+import '../doc/examples/adaptive.dart' as adaptive;
+import '../doc/examples/styled_bottom.dart' as styled;
+import '../doc/examples/scroll.dart' as scrolling;
 
 void main() {
   testWidgets('documentation apps render and handle navigation', (

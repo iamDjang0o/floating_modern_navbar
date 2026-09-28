@@ -14,14 +14,14 @@ Tap destinations to change the selected section. The example starts in Glass
 with automatic placement.
 
 For integration into your own app, start with the [quick start](../README.md#quick-start),
-then read the [usage guide](../docs/USAGE.md) or [full API reference](../docs/API.md).
+then read the [usage guide](../doc/USAGE.md) or [full API reference](../doc/API.md).
 Three smaller, complete apps are also available:
 
 ```sh
 # Run from example/ after flutter pub get.
-flutter run -t ../docs/examples/adaptive.dart
-flutter run -t ../docs/examples/styled_bottom.dart
-flutter run -t ../docs/examples/scroll.dart
+flutter run -t ../doc/examples/adaptive.dart
+flutter run -t ../doc/examples/styled_bottom.dart
+flutter run -t ../doc/examples/scroll.dart
 ```
 
 The adaptive example handles placement and tab state; the styled example exposes
