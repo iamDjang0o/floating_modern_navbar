@@ -30,14 +30,14 @@ side rail in iPhone Duo's native bar region.
 Install version **0.2.0 or newer** for iPhone Duo support:
 
 ```sh
-flutter pub add floating_modern_navbar:^0.2.0
+flutter pub add floating_modern_navbar:^0.2.1
 ```
 
 Or add it to your app's `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  floating_modern_navbar: ^0.2.0
+  floating_modern_navbar: ^0.2.1
 ```
 
 Then run `flutter pub get`. Use a Flutter SDK with Dart 3.10.4 or newer within
@@ -155,6 +155,16 @@ flutter run
 ```
 
 ## Previews
+
+### Actual iPhone Duo simulator
+
+Both captures use **Automatic** placement with the Glass preset on iOS 27.1.
+
+| Folded (outer display) | Unfolded (landscape inner display) |
+| --- | --- |
+| ![iPhone Duo folded](assets/previews/iphone-duo-folded.png) | ![iPhone Duo unfolded](assets/previews/iphone-duo-unfolded.png) |
+
+### Flutter-rendered style previews
 
 Captured from the current Flutter widgets at the same phone size.
 

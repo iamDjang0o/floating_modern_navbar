@@ -31,6 +31,14 @@ manual side previews work without Duo hardware.
 
 ## Previews
 
+Actual iPhone Duo simulator captures with automatic placement:
+
+| Folded | Unfolded landscape |
+| --- | --- |
+| ![Folded Duo](../assets/previews/iphone-duo-folded.png) | ![Unfolded Duo](../assets/previews/iphone-duo-unfolded.png) |
+
+Style previews rendered by Flutter:
+
 | Modern | Glass | Compact |
 | --- | --- | --- |
 | ![Modern](../assets/previews/modern.png) | ![Glass](../assets/previews/glass.png) | ![Compact](../assets/previews/compact.png) |
@@ -54,10 +62,13 @@ From this directory, run:
 flutter test tool/generate_previews.dart
 ```
 
-This replaces all six PNGs and both GIFs in `../assets/previews/` using actual
+This replaces the six rendered PNGs and both GIFs in `../assets/previews/` using actual
 Flutter rendering at 430 × 932 logical pixels. The capture loads real text and
 icon fonts, checks for layout exceptions, and verifies collapse/transparency
 at the end of each recorded scroll. Temporary animation frames are cleaned up.
+
+The two `iphone-duo-*.png` files are actual simulator captures, supplied by the
+maintainer. The generator does not overwrite them.
 
 Requirements:
 

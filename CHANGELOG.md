@@ -1,3 +1,10 @@
+## 0.2.1
+
+- Added actual folded and unfolded iPhone Duo simulator screenshots to the
+  pub.dev gallery and both READMEs.
+- Clearly separated simulator captures from rendered style previews.
+- No runtime API or behavior changes from 0.2.0.
+
 ## 0.2.0
 
 - Refined the glass preset with a single translucent tint, softer shadows,

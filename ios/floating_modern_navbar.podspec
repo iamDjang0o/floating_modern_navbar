@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'floating_modern_navbar'
-  s.version          = '0.2.0'
+  s.version          = '0.2.1'
   s.summary          = 'Floating navigation with native iOS adaptive placement.'
   s.description      = s.summary
   s.homepage         = 'https://github.com/iamDjang0o/floating_modern_navbar'
