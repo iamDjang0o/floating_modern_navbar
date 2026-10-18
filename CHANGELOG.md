@@ -1,5 +1,8 @@
 ## 0.3.0
 
+- Added iOS Swift Package Manager support while retaining CocoaPods compatibility,
+  resolving Flutter's missing SwiftPM support warning for this plugin.
+
 - Added opt-in bottom navigation scroll collapse to `FloatingAdaptiveNavScaffold`
   with `collapseOnScroll` and configurable `collapseDistance`. Side rails stay
   expanded, and collapse resets when navigation placement or selection changes.

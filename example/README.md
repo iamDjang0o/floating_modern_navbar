@@ -81,3 +81,9 @@ Requirements:
 The side preview is an explicit layout override, not proof of Duo hardware
 validation. All README image links point to repository assets so previews follow
 the checked-out version.
+
+### iOS dependency manager
+
+The example uses Swift Package Manager. Build it with a current Flutter SDK
+that supports SwiftPM. The package also retains a CocoaPods podspec for apps
+that have not migrated. No global Flutter configuration change is required.

@@ -7,7 +7,8 @@ Pod::Spec.new do |s|
   s.license          = { :file => '../LICENSE' }
   s.author           = { 'floating_modern_navbar' => 'https://github.com/iamDjang0o' }
   s.source           = { :path => '.' }
-  s.source_files     = 'Classes/**/*'
+  s.source_files     = 'floating_modern_navbar/Sources/floating_modern_navbar/**/*.{h,m}'
+  s.public_header_files = 'floating_modern_navbar/Sources/floating_modern_navbar/include/floating_modern_navbar/*.h'
   s.dependency 'Flutter'
   s.platform = :ios, '13.0'
   s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES' }

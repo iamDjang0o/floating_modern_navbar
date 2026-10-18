@@ -1,4 +1,4 @@
-#import "FloatingModernNavbarPlugin.h"
+#import "include/floating_modern_navbar/FloatingModernNavbarPlugin.h"
 #import <UIKit/UIKit.h>
 
 @interface FMNTraitObserver : UIView

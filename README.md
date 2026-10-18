@@ -140,6 +140,9 @@ Set `collapseOnScroll: true` on the adaptive scaffold to shrink bottom navigatio
 on downward scroll and expand it on upward scroll. Side rails stay expanded.
 Use `collapseDistance` (default `140`) to adjust sensitivity. No wrapper is needed.
 
+The iOS plugin supports both Swift Package Manager and CocoaPods. Flutter chooses
+the integration used by your app; no Dart API changes are needed.
+
 ## Ready-to-run recipes
 
 - [Automatic navigation](doc/examples/adaptive.dart): bottom/side placement and persistent tab pages.
