@@ -87,3 +87,11 @@ the checked-out version.
 The example uses Swift Package Manager. Build it with a current Flutter SDK
 that supports SwiftPM. The package also retains a CocoaPods podspec for apps
 that have not migrated. No global Flutter configuration change is required.
+
+### One-scaffold customization (0.4.0+)
+
+Run `flutter run -t ../doc/examples/adaptive.dart` from this directory for the
+complete example. `FloatingAdaptiveNavScaffold` accepts `appBar`, padding, margins,
+colors, corner radius, and icon/label controls directly. No additional Scaffold
+or scroll container is needed. See the [migration and styling guide](../doc/USAGE.md#upgrade-an-existing-navigation-shell-to-040)
+and [property defaults](../doc/API.md#adaptive-styling-and-app-bar).

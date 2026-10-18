@@ -8,6 +8,76 @@ void main() {
     FloatingNavBarItem(icon: Icons.home, label: 'Home'),
     FloatingNavBarItem(icon: Icons.search, label: 'Search'),
   ];
+  for (final edge in [
+    FloatingNavBarPlacement.bottom,
+    FloatingNavBarPlacement.right,
+  ]) {
+    testWidgets('custom appearance and app bar work at $edge', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: FloatingAdaptiveNavScaffold(
+            placement: edge,
+            items: items,
+            currentIndex: 0,
+            onTap: (_) {},
+            appBar: AppBar(title: const Text('My app')),
+            navBarPadding: const EdgeInsets.all(8),
+            navBarMargin: const EdgeInsets.all(4),
+            navBarHeight: 80,
+            navBarBorderRadius: 30,
+            navBarColor: Colors.white,
+            selectedItemColor: Colors.blue,
+            unselectedItemColor: Colors.grey,
+            indicatorColor: Colors.amber,
+            selectedLabelColor: Colors.red,
+            unselectedLabelColor: Colors.green,
+            backdropBlur: 18,
+            iconSize: 20,
+            showLabels: false,
+            collapseOnScroll: true,
+            body: ListView.builder(
+              itemCount: 80,
+              itemExtent: 60,
+              itemBuilder: (_, i) => Text('Row $i'),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      final bar = tester.widget<FloatingModernNavBar>(
+        find.byType(FloatingModernNavBar),
+      );
+      expect(bar.padding, const EdgeInsets.all(8));
+      expect(bar.margin, const EdgeInsets.all(4));
+      expect(bar.height, 80);
+      expect(bar.borderRadius, 30);
+      expect(bar.backgroundColor, Colors.white);
+      expect(bar.selectedItemColor, Colors.blue);
+      expect(bar.unselectedItemColor, Colors.grey);
+      expect(bar.indicatorColor, Colors.amber);
+      expect(bar.selectedLabelColor, Colors.red);
+      expect(bar.unselectedLabelColor, Colors.green);
+      expect(bar.backdropBlur, 18);
+      expect(bar.iconSize, 20);
+      expect(bar.showLabels, false);
+      final appBar = tester.getRect(find.byType(AppBar));
+      if (edge == FloatingNavBarPlacement.right) {
+        expect(
+          appBar.right,
+          lessThan(tester.getCenter(find.byIcon(Icons.home)).dx),
+        );
+      }
+      await tester.drag(find.byType(ListView), const Offset(0, -250));
+      await tester.pumpAndSettle();
+      expect(
+        tester
+            .widget<FloatingModernNavBar>(find.byType(FloatingModernNavBar))
+            .collapseProgress,
+        edge == FloatingNavBarPlacement.bottom ? 1 : 0,
+      );
+      expect(tester.takeException(), isNull);
+    });
+  }
   for (final placement in [
     FloatingNavBarPlacement.bottom,
     FloatingNavBarPlacement.left,
@@ -266,6 +336,8 @@ void main() {
       MaterialApp(
         theme: ThemeData(platform: TargetPlatform.iOS),
         home: FloatingAdaptiveNavScaffold(
+          appBar: AppBar(title: const Text('Duo content')),
+          navBarMargin: const EdgeInsets.all(4),
           items: items,
           currentIndex: 0,
           onTap: (_) {},
@@ -281,6 +353,10 @@ void main() {
     );
     expect(content.left, 24);
     expect(content.right, 370);
+    expect(tester.getRect(find.byType(AppBar)).right, 370);
+    final home = tester.getCenter(find.byIcon(Icons.home));
+    expect(home.dy, greaterThanOrEqualTo(130));
+    expect(home.dy, lessThan(654));
     expect(tester.getCenter(find.byIcon(Icons.home)).dx, 418);
     expect(tester.takeException(), isNull);
   });

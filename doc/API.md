@@ -50,6 +50,28 @@ own `Scaffold`; it is not a widget for `Scaffold.bottomNavigationBar`.
 Only depth-zero vertical scroll notifications from `body` are observed. Horizontal
 and nested scrollables are ignored. The adaptive scaffold does not fade at scroll end.
 
+### Adaptive styling and app bar
+
+| Property | Default | What it does |
+| --- | --- | --- |
+| `appBar` | `null` | App bar above the body, within the content area beside any rail. No nested Scaffold is needed in your code. |
+| `navBarPadding` | `EdgeInsets.all(6)` | Navigation surface inner padding. Compact retains its preset padding. |
+| `navBarMargin` | `null` | Uses 12 on bottom, zero on sides. Explicit margins consume space inside the side region. |
+| `navBarHeight` | `74` | Bottom surface height; side item slots are unchanged. Compact clamps to 56–70. |
+| `navBarBorderRadius` | `36` | Surface corner radius; Compact clamps to 16–24. |
+| `navBarColor` | `null` | Surface tint; null uses the preset/theme. Separate from the page background. |
+| `selectedItemColor` | `null` | Selected destination background. |
+| `unselectedItemColor` | `null` | Unselected destination background. |
+| `indicatorColor` | `null` | Unread badge background. |
+| `selectedLabelColor` | `null` | Selected icon and label color. |
+| `unselectedLabelColor` | `null` | Unselected icon and label color. |
+| `backdropBlur` | `24` | Glass blur sigma. |
+| `iconSize` | `22` | Icon size; Compact applies its preset adjustment. |
+| `showLabels` | `null` | Automatic: on for bottom, off for sides. Explicit bool overrides this, except Compact always hides labels. |
+
+Use small, nonnegative padding/margins so destinations remain usable in narrow
+native rail regions. The app bar does not shift the native rail coordinates.
+
 ### Placement values
 
 | Value | Behavior |

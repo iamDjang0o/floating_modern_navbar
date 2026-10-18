@@ -1,3 +1,9 @@
+## 0.4.0
+
+- Added direct adaptive navigation padding, margin, size, color, blur, and label
+  controls, plus an integrated `appBar` to simplify page setup.
+- Kept native rail positioning and bottom-only scroll collapse intact.
+
 ## 0.3.0
 
 - Added iOS Swift Package Manager support while retaining CocoaPods compatibility,

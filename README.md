@@ -30,14 +30,14 @@ side rail in iPhone Duo's native bar region.
 Install version **0.2.0 or newer** for iPhone Duo support:
 
 ```sh
-flutter pub add floating_modern_navbar:^0.3.0
+flutter pub add floating_modern_navbar:^0.4.0
 ```
 
 Or add it to your app's `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  floating_modern_navbar: ^0.3.0
+  floating_modern_navbar: ^0.4.0
 ```
 
 Then run `flutter pub get`. Use a Flutter SDK with Dart 3.10.4 or newer within
@@ -98,6 +98,7 @@ class _NavigationDemoState extends State<NavigationDemo> {
   @override
   Widget build(BuildContext context) {
     return FloatingAdaptiveNavScaffold(
+      appBar: AppBar(title: const Text('My app')),
       items: items,
       currentIndex: selectedIndex,
       onTap: (index) => setState(() => selectedIndex = index),
@@ -130,7 +131,7 @@ There is no need to wrap the whole host in another `SafeArea`.
 
 | Component | Purpose |
 | --- | --- |
-| `FloatingAdaptiveNavScaffold` | Easiest automatic bottom/side layout. Exposes content, destinations, selection, preset, placement, and page background. |
+| `FloatingAdaptiveNavScaffold` | Easiest automatic bottom/side layout. Includes an app bar, styling controls, and optional bottom-only scroll collapse. |
 | `FloatingModernNavBar` | Standalone bar with all styling and animation controls. Add it to your own Scaffold or layout. |
 | `FloatingNavBarScrollContainer` | Overlays a bottom bar and supplies collapse/fade progress from scrolling. |
 | `FloatingNavBarItem` | Describes a destination's icons, label, tooltip, and badge. |
@@ -142,6 +143,38 @@ Use `collapseDistance` (default `140`) to adjust sensitivity. No wrapper is need
 
 The iOS plugin supports both Swift Package Manager and CocoaPods. Flutter chooses
 the integration used by your app; no Dart API changes are needed.
+
+### Customize the adaptive bar
+
+Available from **0.4.0**. Existing code continues to work with the same defaults.
+
+Use one host for the app bar, page, and adaptive navigation:
+
+```dart
+FloatingAdaptiveNavScaffold(
+  appBar: AppBar(title: const Text('My app')),
+  body: IndexedStack(index: currentIndex, children: pages),
+  items: items,
+  currentIndex: currentIndex,
+  onTap: (index) => setState(() => currentIndex = index),
+  collapseOnScroll: true,
+  navBarPadding: const EdgeInsets.all(8),
+  navBarMargin: const EdgeInsets.all(4),
+  navBarBorderRadius: 32,
+  selectedItemColor: Colors.blue.withValues(alpha: 0.12),
+  selectedLabelColor: Colors.blue,
+)
+```
+
+No additional Scaffold or scroll container is needed. Omit `navBarMargin` for
+adaptive spacing (12 on bottom, zero on sides). Custom side margins reduce the
+space inside the rail region; keep them small. Collapse affects bottom navigation
+only. `navBarPadding` is space inside the surface; `navBarMargin` is space outside it.
+
+`selectedItemColor` colors the selected destination's background;
+`selectedLabelColor` colors its icon and text. `navBarColor` colors the bar surface,
+while `backgroundColor` colors the page. `indicatorColor` colors unread badges.
+See the [API reference](doc/API.md#floatingadaptivenavscaffold) for all controls.
 
 ## Ready-to-run recipes
 

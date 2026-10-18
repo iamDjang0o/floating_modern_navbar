@@ -6,14 +6,15 @@
 
 | Your goal | Use | Where it goes |
 | --- | --- | --- |
-| Automatic bottom/side navigation, including Duo | `FloatingAdaptiveNavScaffold` | Root of the page or route |
+| App bar, styling, bottom-only scroll collapse, and automatic Duo navigation | `FloatingAdaptiveNavScaffold` | Root of the page or route |
 | A custom bottom bar with full styling control | `FloatingModernNavBar` | Your `Scaffold.bottomNavigationBar` |
 | A bottom bar that shrinks or fades on scroll | `FloatingNavBarScrollContainer` | Your `Scaffold.body` |
 | A manually composed side rail | `FloatingModernNavBar(axis: Axis.vertical)` | Beside your content in a bounded layout |
 
 These are alternative ways to host navigation. Do not stack them together and
 accidentally display two bars. The adaptive scaffold uses a standalone bar
-internally, but does not currently expose all its styling properties.
+internally and exposes everyday styling directly. Use the standalone bar for
+advanced options such as custom gradients, shadows, or animation curves.
 
 ## 2. Connect tabs to pages
 
@@ -288,3 +289,52 @@ flutter run -t ../doc/examples/scroll.dart
 
 The three documentation entry points are complete apps. The smaller snippets
 in this guide illustrate settings within your own app.
+
+## Customize adaptive navigation without extra wrappers
+
+`FloatingAdaptiveNavScaffold` accepts `appBar` directly. Pass your `AppBar` there
+and your pages (or an `IndexedStack`) as `body`; you do not need to put another
+Scaffold or scroll container around it. See the [adaptive example](examples/adaptive.dart).
+
+Use `navBarPadding` for inner spacing and `navBarMargin` for outer spacing.
+Leave the margin null for automatic bottom/side defaults. On Duo, explicit margins
+stay inside the system rail region, so large horizontal margins leave less room
+for icons. `navBarHeight` affects bottom navigation only.
+
+Customize the surface with `navBarColor`, `navBarBorderRadius`, and `backdropBlur`;
+use `selectedItemColor`, `unselectedItemColor`, and `indicatorColor` for destinations.
+`iconSize` and `showLabels` control content. Existing variant rules still apply:
+Compact uses its own padding, clamps sizes, and hides labels. Enable
+`collapseOnScroll` for bottom-only collapse.
+
+### Upgrade an existing navigation shell to 0.4.0
+
+1. Update your dependency to `floating_modern_navbar: ^0.4.0` and run `flutter pub get`.
+2. Return `FloatingAdaptiveNavScaffold` directly from your shell's `build` method.
+3. Move the outer Scaffold's `appBar` and `backgroundColor` onto this host.
+4. Keep your `items`, `currentIndex`, and `onTap`, and put your pages in `body`.
+5. Enable `collapseOnScroll` if needed; do not wrap the host in
+   `FloatingNavBarScrollContainer`.
+
+An existing SVG logo can stay in `AppBar(title: SvgPicture.asset(...))`; the
+package does not require or supply an SVG dependency. Use `IndexedStack` to keep
+your pages mounted. Each scrolling page should include enough bottom content
+padding (120 logical pixels is a starting point) to clear the floating bar.
+
+### Choose the right color control
+
+| What you want to color | Property |
+| --- | --- |
+| Page background | `backgroundColor` |
+| Navigation surface | `navBarColor` |
+| Selected / unselected destination background | `selectedItemColor` / `unselectedItemColor` |
+| Selected / unselected icon and text | `selectedLabelColor` / `unselectedLabelColor` |
+| Unread badge | `indicatorColor` |
+
+For example, combine a pale `selectedItemColor` with a stronger
+`selectedLabelColor`. Using the same solid color for both can hide the icon.
+
+Leave `showLabels` null to show bottom labels and hide side labels automatically.
+Explicit values override this for Modern and Glass; Compact retains its preset
+behavior. Side rails never collapse, and a custom `navBarHeight` only changes
+the bottom bar. Existing users can upgrade without setting any new options.

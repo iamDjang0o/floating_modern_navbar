@@ -32,6 +32,12 @@ class _NavigationDemoState extends State<NavigationDemo> {
   @override
   Widget build(BuildContext context) {
     return FloatingAdaptiveNavScaffold(
+      appBar: AppBar(title: const Text('My library')),
+      navBarPadding: const EdgeInsets.all(8),
+      navBarMargin: const EdgeInsets.all(4),
+      navBarBorderRadius: 32,
+      selectedItemColor: Colors.blue.withValues(alpha: 0.12),
+      selectedLabelColor: Colors.blue,
       items: items,
       currentIndex: selectedIndex,
       onTap: (index) => setState(() => selectedIndex = index),

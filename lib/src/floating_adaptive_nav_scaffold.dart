@@ -21,6 +21,20 @@ class FloatingAdaptiveNavScaffold extends StatefulWidget {
     this.variant = FloatingNavBarVariant.glassmorphism,
     this.placement = FloatingNavBarPlacement.automatic,
     this.backgroundColor,
+    this.appBar,
+    this.navBarPadding = const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+    this.navBarMargin,
+    this.navBarHeight = 74,
+    this.navBarBorderRadius = 36,
+    this.navBarColor,
+    this.selectedItemColor,
+    this.unselectedItemColor,
+    this.indicatorColor,
+    this.selectedLabelColor,
+    this.unselectedLabelColor,
+    this.backdropBlur = 24,
+    this.iconSize = 22,
+    this.showLabels,
     this.collapseOnScroll = false,
     this.collapseDistance = 140,
   }) : assert(collapseDistance > 0 && collapseDistance < double.infinity);
@@ -45,6 +59,52 @@ class FloatingAdaptiveNavScaffold extends StatefulWidget {
 
   /// Scaffold/page background, not the bar's surface tint.
   final Color? backgroundColor;
+
+  /// Optional app bar, laid out above the body within the content area.
+  /// On Duo it stays beside the rail without shifting the native rail region.
+  final PreferredSizeWidget? appBar;
+
+  /// Inner padding of the navigation surface. Compact uses its preset padding.
+  final EdgeInsets navBarPadding;
+
+  /// Outer navigation spacing. Null uses 12 on bottom and zero on side rails.
+  /// Side margins consume space inside the available rail region.
+  final EdgeInsets? navBarMargin;
+
+  /// Bottom surface height. Side rails retain their fixed item slots.
+  /// Compact clamps this to its supported 56–70 range.
+  final double navBarHeight;
+
+  /// Surface corner radius. Compact clamps this to its preset range.
+  final double navBarBorderRadius;
+
+  /// Navigation surface tint, separate from the page [backgroundColor].
+  final Color? navBarColor;
+
+  /// Selected destination background; null uses the variant/theme default.
+  final Color? selectedItemColor;
+
+  /// Unselected destination background; null uses the variant/theme default.
+  final Color? unselectedItemColor;
+
+  /// Unread badge background color.
+  final Color? indicatorColor;
+
+  /// Selected icon and label color.
+  final Color? selectedLabelColor;
+
+  /// Unselected icon and label color.
+  final Color? unselectedLabelColor;
+
+  /// Glass backdrop blur sigma. Used by the glass variant only.
+  final double backdropBlur;
+
+  /// Navigation icon size. Compact applies its preset size adjustment.
+  final double iconSize;
+
+  /// Null shows labels on bottom navigation and hides them on side rails.
+  /// Compact always hides labels.
+  final bool? showLabels;
 
   /// Shrinks bottom navigation on downward scrolling and expands it on upward
   /// scrolling. Side rails stay expanded. Only depth-zero vertical scroll
@@ -206,8 +266,21 @@ class _AdaptiveState extends State<FloatingAdaptiveNavScaffold>
             ? _collapseProgress
             : 0,
         axis: vertical ? Axis.vertical : Axis.horizontal,
-        showLabels: !vertical,
-        margin: vertical ? EdgeInsets.zero : const EdgeInsets.all(12),
+        showLabels: widget.showLabels ?? !vertical,
+        margin:
+            widget.navBarMargin ??
+            (vertical ? EdgeInsets.zero : const EdgeInsets.all(12)),
+        padding: widget.navBarPadding,
+        height: widget.navBarHeight,
+        borderRadius: widget.navBarBorderRadius,
+        backgroundColor: widget.navBarColor,
+        selectedItemColor: widget.selectedItemColor,
+        unselectedItemColor: widget.unselectedItemColor,
+        indicatorColor: widget.indicatorColor,
+        selectedLabelColor: widget.selectedLabelColor,
+        unselectedLabelColor: widget.unselectedLabelColor,
+        backdropBlur: widget.backdropBlur,
+        iconSize: widget.iconSize,
       );
       return Scaffold(
         backgroundColor: widget.backgroundColor,
@@ -265,7 +338,13 @@ class _AdaptiveState extends State<FloatingAdaptiveNavScaffold>
                     child: NotificationListener<ScrollNotification>(
                       onNotification: (notification) =>
                           _onScroll(notification, vertical),
-                      child: widget.body,
+                      child: widget.appBar == null
+                          ? widget.body
+                          : Scaffold(
+                              backgroundColor: widget.backgroundColor,
+                              appBar: widget.appBar,
+                              body: widget.body,
+                            ),
                     ),
                   ),
                 ),
