@@ -1,3 +1,9 @@
+## 0.3.0
+
+- Added opt-in bottom navigation scroll collapse to `FloatingAdaptiveNavScaffold`
+  with `collapseOnScroll` and configurable `collapseDistance`. Side rails stay
+  expanded, and collapse resets when navigation placement or selection changes.
+
 ## 0.2.1
 
 - Added actual folded and unfolded iPhone Duo simulator screenshots to the

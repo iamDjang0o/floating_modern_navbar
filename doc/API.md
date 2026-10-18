@@ -44,6 +44,12 @@ own `Scaffold`; it is not a widget for `Scaffold.bottomNavigationBar`.
 | `placement` | `FloatingNavBarPlacement.automatic` | Automatic native placement or a manual override. |
 | `backgroundColor` | `null` | **Page/scaffold background**, not the glass tint. Falls back to the Scaffold theme. |
 
+| `collapseOnScroll` | `false` | Collapse bottom navigation on downward scrolling; expand on upward scrolling. Side rails remain expanded. Resets when selection or placement changes. |
+| `collapseDistance` | `140` | Logical pixels of accumulated scroll for full collapse; must be finite and positive. |
+
+Only depth-zero vertical scroll notifications from `body` are observed. Horizontal
+and nested scrollables are ignored. The adaptive scaffold does not fade at scroll end.
+
 ### Placement values
 
 | Value | Behavior |

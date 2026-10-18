@@ -21,7 +21,10 @@ class FloatingAdaptiveNavScaffold extends StatefulWidget {
     this.variant = FloatingNavBarVariant.glassmorphism,
     this.placement = FloatingNavBarPlacement.automatic,
     this.backgroundColor,
-  });
+    this.collapseOnScroll = false,
+    this.collapseDistance = 140,
+  }) : assert(collapseDistance > 0 && collapseDistance < double.infinity);
+
   /// Page content. Place SafeArea inside this body, not around the host.
   final Widget body;
 
@@ -42,6 +45,15 @@ class FloatingAdaptiveNavScaffold extends StatefulWidget {
 
   /// Scaffold/page background, not the bar's surface tint.
   final Color? backgroundColor;
+
+  /// Shrinks bottom navigation on downward scrolling and expands it on upward
+  /// scrolling. Side rails stay expanded. Only depth-zero vertical scroll
+  /// notifications from [body] are observed; no scroll controller is required.
+  final bool collapseOnScroll;
+
+  /// Accumulated scroll distance in logical pixels for full collapse.
+  /// Must be finite and greater than zero. Used only with [collapseOnScroll].
+  final double collapseDistance;
 
   @override
   State<FloatingAdaptiveNavScaffold> createState() => _AdaptiveState();
@@ -77,13 +89,23 @@ class _NativeEdge extends ValueNotifier<_NativeLayout> {
     final width = map?['width'];
     final height = map?['height'];
     Rect? bar;
-    if (frame is Map && ['x', 'y', 'width', 'height'].every((k) => frame[k] is num)) {
-      bar = Rect.fromLTWH((frame['x'] as num).toDouble(), (frame['y'] as num).toDouble(),
-        (frame['width'] as num).toDouble(), (frame['height'] as num).toDouble());
+    if (frame is Map &&
+        ['x', 'y', 'width', 'height'].every((k) => frame[k] is num)) {
+      bar = Rect.fromLTWH(
+        (frame['x'] as num).toDouble(),
+        (frame['y'] as num).toDouble(),
+        (frame['width'] as num).toDouble(),
+        (frame['height'] as num).toDouble(),
+      );
       if (!bar.isFinite || bar.isEmpty) bar = null;
     }
-    value = _NativeLayout(edge, bar: bar, viewport: width is num && height is num
-      ? Size(width.toDouble(), height.toDouble()) : null);
+    value = _NativeLayout(
+      edge,
+      bar: bar,
+      viewport: width is num && height is num
+          ? Size(width.toDouble(), height.toDouble())
+          : null,
+    );
   }
 
   Future<void> refresh() async {
@@ -99,6 +121,36 @@ class _NativeEdge extends ValueNotifier<_NativeLayout> {
 
 class _AdaptiveState extends State<FloatingAdaptiveNavScaffold>
     with WidgetsBindingObserver {
+  double _collapseProgress = 0;
+
+  @override
+  void didUpdateWidget(covariant FloatingAdaptiveNavScaffold oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.collapseOnScroll != widget.collapseOnScroll ||
+        oldWidget.placement != widget.placement ||
+        oldWidget.currentIndex != widget.currentIndex) {
+      _collapseProgress = 0;
+    }
+  }
+
+  bool _onScroll(ScrollNotification notification, bool vertical) {
+    if (!widget.collapseOnScroll ||
+        vertical ||
+        notification.depth != 0 ||
+        notification.metrics.axis != Axis.vertical) {
+      return false;
+    }
+    final delta = notification is ScrollUpdateNotification
+        ? notification.scrollDelta ?? 0
+        : 0.0;
+    final next = (_collapseProgress + delta / widget.collapseDistance).clamp(
+      0.0,
+      1.0,
+    );
+    if (next != _collapseProgress) setState(() => _collapseProgress = next);
+    return false;
+  }
+
   bool get _usesNative =>
       !kIsWeb && Theme.of(context).platform == TargetPlatform.iOS;
 
@@ -143,11 +195,16 @@ class _AdaptiveState extends State<FloatingAdaptiveNavScaffold>
           ? (_usesNative ? nativeLayout.edge : FloatingNavBarPlacement.bottom)
           : widget.placement;
       final vertical = edge != FloatingNavBarPlacement.bottom;
+      // Discard bottom-bar progress when the system moves navigation sideways.
+      if (vertical) _collapseProgress = 0;
       final bar = FloatingModernNavBar(
         items: widget.items,
         currentIndex: widget.currentIndex,
         onTap: widget.onTap,
         variant: widget.variant,
+        collapseProgress: widget.collapseOnScroll && !vertical
+            ? _collapseProgress
+            : 0,
         axis: vertical ? Axis.vertical : Axis.horizontal,
         showLabels: !vertical,
         margin: vertical ? EdgeInsets.zero : const EdgeInsets.all(12),
@@ -156,50 +213,78 @@ class _AdaptiveState extends State<FloatingAdaptiveNavScaffold>
         backgroundColor: widget.backgroundColor,
         extendBody: true,
         bottomNavigationBar: vertical ? null : bar,
-        body: LayoutBuilder(builder: (context, constraints) {
-          final media = MediaQuery.of(context);
-          final bounds = Offset.zero & constraints.biggest;
-          final left = edge == FloatingNavBarPlacement.left;
-          Rect? rail;
-          if (vertical) {
-            // UIKit's bar region already avoids the status area, camera and
-            // rounded edges. It is in the Flutter host view's logical points.
-            if (automatic && _usesNative && nativeLayout.bar != null &&
-                nativeLayout.viewport != null &&
-                (nativeLayout.viewport!.width - bounds.width).abs() < 1) {
-              rail = nativeLayout.bar!.intersect(bounds);
-              if (rail.isEmpty) rail = null;
+        body: LayoutBuilder(
+          builder: (context, constraints) {
+            final media = MediaQuery.of(context);
+            final bounds = Offset.zero & constraints.biggest;
+            final left = edge == FloatingNavBarPlacement.left;
+            Rect? rail;
+            if (vertical) {
+              // UIKit's bar region already avoids the status area, camera and
+              // rounded edges. It is in the Flutter host view's logical points.
+              if (automatic &&
+                  _usesNative &&
+                  nativeLayout.bar != null &&
+                  nativeLayout.viewport != null &&
+                  (nativeLayout.viewport!.width - bounds.width).abs() < 1) {
+                rail = nativeLayout.bar!.intersect(bounds);
+                if (rail.isEmpty) rail = null;
+              }
+              rail ??= Rect.fromLTWH(
+                left ? 12 : math.max(0, bounds.width - 84),
+                math.max(12, media.padding.top),
+                math.min(72, bounds.width),
+                math.max(
+                  0,
+                  bounds.height -
+                      math.max(12, media.padding.top) -
+                      math.max(12, media.padding.bottom),
+                ),
+              );
             }
-            rail ??= Rect.fromLTWH(
-              left ? 12 : math.max(0, bounds.width - 84),
-              math.max(12, media.padding.top),
-              math.min(72, bounds.width),
-              math.max(0, bounds.height - math.max(12, media.padding.top) -
-                math.max(12, media.padding.bottom)),
+            final inset = rail == null
+                ? 0.0
+                : left
+                ? math.max(media.padding.left, rail.right + 12)
+                : math.max(media.padding.right, bounds.width - rail.left + 12);
+            return Stack(
+              fit: StackFit.expand,
+              children: [
+                Padding(
+                  key: const ValueKey('content'),
+                  padding: EdgeInsets.only(
+                    left: vertical && left ? inset : 0,
+                    right: vertical && !left ? inset : 0,
+                  ),
+                  // The rail has consumed this edge once. A page's SafeArea must
+                  // not subtract Duo's large side inset a second time.
+                  child: MediaQuery.removePadding(
+                    context: context,
+                    removeLeft: vertical && left,
+                    removeRight: vertical && !left,
+                    child: NotificationListener<ScrollNotification>(
+                      onNotification: (notification) =>
+                          _onScroll(notification, vertical),
+                      child: widget.body,
+                    ),
+                  ),
+                ),
+                if (rail != null)
+                  Positioned.fromRect(
+                    rect: rail,
+                    child: MediaQuery.removePadding(
+                      context: context,
+                      removeLeft: true,
+                      removeRight: true,
+                      removeTop: true,
+                      removeBottom: true,
+                      child: Center(child: SingleChildScrollView(child: bar)),
+                    ),
+                  ),
+              ],
             );
-          }
-          final inset = rail == null ? 0.0 : left
-              ? math.max(media.padding.left, rail.right + 12)
-              : math.max(media.padding.right, bounds.width - rail.left + 12);
-          return Stack(fit: StackFit.expand, children: [
-            Padding(
-              key: const ValueKey('content'),
-              padding: EdgeInsets.only(left: vertical && left ? inset : 0,
-                right: vertical && !left ? inset : 0),
-              // The rail has consumed this edge once. A page's SafeArea must
-              // not subtract Duo's large side inset a second time.
-              child: MediaQuery.removePadding(context: context,
-                removeLeft: vertical && left, removeRight: vertical && !left,
-                child: widget.body),
-            ),
-            if (rail != null)
-              Positioned.fromRect(rect: rail,
-                child: MediaQuery.removePadding(context: context,
-                  removeLeft: true, removeRight: true, removeTop: true, removeBottom: true,
-                  child: Center(child: SingleChildScrollView(child: bar))),
-              ),
-          ]);
-        }),
+          },
+        ),
       );
     },
   );

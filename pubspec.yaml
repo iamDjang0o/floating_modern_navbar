@@ -1,6 +1,6 @@
 name: floating_modern_navbar
 description: Flutter floating navigation bar with Apple-inspired glass, automatic iPhone Duo sidebar support, badges, and scroll animations.
-version: 0.2.1
+version: 0.3.0
 homepage: https://github.com/iamDjang0o/floating_modern_navbar
 repository: https://github.com/iamDjang0o/floating_modern_navbar
 issue_tracker: https://github.com/iamDjang0o/floating_modern_navbar/issues

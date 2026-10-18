@@ -30,14 +30,14 @@ side rail in iPhone Duo's native bar region.
 Install version **0.2.0 or newer** for iPhone Duo support:
 
 ```sh
-flutter pub add floating_modern_navbar:^0.2.1
+flutter pub add floating_modern_navbar:^0.3.0
 ```
 
 Or add it to your app's `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  floating_modern_navbar: ^0.2.1
+  floating_modern_navbar: ^0.3.0
 ```
 
 Then run `flutter pub get`. Use a Flutter SDK with Dart 3.10.4 or newer within
@@ -136,8 +136,9 @@ There is no need to wrap the whole host in another `SafeArea`.
 | `FloatingNavBarItem` | Describes a destination's icons, label, tooltip, and badge. |
 
 The adaptive host defaults to Glass; the standalone bar defaults to Modern.
-The scroll wrapper is a separate bottom-bar integration and does not add
-scroll collapse to the adaptive scaffold.
+Set `collapseOnScroll: true` on the adaptive scaffold to shrink bottom navigation
+on downward scroll and expand it on upward scroll. Side rails stay expanded.
+Use `collapseDistance` (default `140`) to adjust sensitivity. No wrapper is needed.
 
 ## Ready-to-run recipes
 
@@ -189,8 +190,9 @@ The side image uses the manual preview setting; it is not a capture from Duo har
 | ![Regular scroll behavior](assets/previews/regular.gif) | ![Transparent scroll end behavior](assets/previews/transparent.gif) |
 
 These animations use `FloatingNavBarScrollContainer` with the example gallery.
-They show scrolling down to the end and back up. The adaptive scaffold itself
-does not add scroll-collapse behavior.
+They show scrolling down to the end and back up. The adaptive scaffold supports
+bottom-only collapse with `collapseOnScroll: true`; end-of-list fading remains
+a feature of the separate scroll container.
 
 See [preview regeneration instructions](example/README.md#regenerate-previews).
 

@@ -8,6 +8,112 @@ void main() {
     FloatingNavBarItem(icon: Icons.home, label: 'Home'),
     FloatingNavBarItem(icon: Icons.search, label: 'Search'),
   ];
+  for (final placement in [
+    FloatingNavBarPlacement.bottom,
+    FloatingNavBarPlacement.left,
+    FloatingNavBarPlacement.right,
+  ]) {
+    testWidgets('scroll collapse respects $placement', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: FloatingAdaptiveNavScaffold(
+            placement: placement,
+            collapseOnScroll: true,
+            collapseDistance: 100,
+            items: items,
+            currentIndex: 0,
+            onTap: (_) {},
+            body: ListView.builder(
+              itemExtent: 60,
+              itemCount: 100,
+              itemBuilder: (_, i) => Text('Row $i'),
+            ),
+          ),
+        ),
+      );
+      await tester.drag(find.byType(ListView), const Offset(0, -200));
+      await tester.pumpAndSettle();
+      final bar = tester.widget<FloatingModernNavBar>(
+        find.byType(FloatingModernNavBar),
+      );
+      expect(
+        bar.collapseProgress,
+        placement == FloatingNavBarPlacement.bottom ? 1 : 0,
+      );
+      expect(bar.transparencyProgress, 0);
+      await tester.drag(find.byType(ListView), const Offset(0, 200));
+      await tester.pumpAndSettle();
+      expect(
+        tester
+            .widget<FloatingModernNavBar>(find.byType(FloatingModernNavBar))
+            .collapseProgress,
+        0,
+      );
+      expect(tester.takeException(), isNull);
+    });
+  }
+  testWidgets(
+    'automatic transition clears collapse and opt-out keeps bottom expanded',
+    (tester) async {
+      const channel = MethodChannel('floating_modern_navbar/layout');
+      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        channel,
+        (_) async => 'bottom',
+      );
+      addTearDown(
+        () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+          channel,
+          null,
+        ),
+      );
+      Widget host(bool enabled) => MaterialApp(
+        theme: ThemeData(platform: TargetPlatform.iOS),
+        home: FloatingAdaptiveNavScaffold(
+          collapseOnScroll: enabled,
+          items: items,
+          currentIndex: 0,
+          onTap: (_) {},
+          body: ListView.builder(
+            itemExtent: 60,
+            itemCount: 100,
+            itemBuilder: (_, i) => Text('Row $i'),
+          ),
+        ),
+      );
+      FloatingModernNavBar bar() => tester.widget<FloatingModernNavBar>(
+        find.byType(FloatingModernNavBar),
+      );
+      Future<void> edge(String value) async {
+        await tester.binding.defaultBinaryMessenger.handlePlatformMessage(
+          channel.name,
+          channel.codec.encodeMethodCall(MethodCall('edgeChanged', value)),
+          (_) {},
+        );
+        await tester.pumpAndSettle();
+      }
+
+      await tester.pumpWidget(host(true));
+      await tester.pumpAndSettle();
+      await tester.drag(find.byType(ListView), const Offset(0, -200));
+      await tester.pumpAndSettle();
+      expect(bar().collapseProgress, 1);
+      await edge('right');
+      expect(bar().axis, Axis.vertical);
+      expect(bar().collapseProgress, 0);
+      await tester.drag(find.byType(ListView), const Offset(0, -200));
+      await tester.pumpAndSettle();
+      expect(bar().collapseProgress, 0);
+      await edge('bottom');
+      expect(bar().axis, Axis.horizontal);
+      expect(bar().collapseProgress, 0);
+      await tester.pumpWidget(host(false));
+      await tester.pumpAndSettle();
+      await tester.drag(find.byType(ListView), const Offset(0, -200));
+      await tester.pumpAndSettle();
+      expect(bar().collapseProgress, 0);
+      expect(tester.takeException(), isNull);
+    },
+  );
   testWidgets('native edge switches layout and preserves taps', (tester) async {
     const channel = MethodChannel('floating_modern_navbar/layout');
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
@@ -120,30 +226,62 @@ void main() {
     );
     expect(tester.takeException(), isNull);
   });
-  testWidgets('Duo rail uses system region without double safe-area padding', (tester) async {
+  testWidgets('Duo rail uses system region without double safe-area padding', (
+    tester,
+  ) async {
     tester.view.physicalSize = const Size(466, 678);
     tester.view.devicePixelRatio = 1;
-    tester.view.padding = FakeViewPadding(left: 24, right: 96, top: 24, bottom: 24);
+    tester.view.padding = FakeViewPadding(
+      left: 24,
+      right: 96,
+      top: 24,
+      bottom: 24,
+    );
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
     addTearDown(tester.view.resetPadding);
     const channel = MethodChannel('floating_modern_navbar/layout');
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-      .setMockMethodCallHandler(channel, (call) async => call.method == 'getLayout' ? {
-        'edge': 'right', 'width': 466.0, 'height': 678.0,
-        'bar': {'x': 382.0, 'y': 130.0, 'width': 72.0, 'height': 524.0},
-      } : 'right');
-    addTearDown(() => TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-      .setMockMethodCallHandler(channel, null));
-    await tester.pumpWidget(MaterialApp(theme: ThemeData(platform: TargetPlatform.iOS),
-      home: FloatingAdaptiveNavScaffold(items: items, currentIndex: 0, onTap: (_) {},
-        body: const SafeArea(child: SizedBox.expand(key: ValueKey('usable-content'))))));
+        .setMockMethodCallHandler(
+          channel,
+          (call) async => call.method == 'getLayout'
+              ? {
+                  'edge': 'right',
+                  'width': 466.0,
+                  'height': 678.0,
+                  'bar': {
+                    'x': 382.0,
+                    'y': 130.0,
+                    'width': 72.0,
+                    'height': 524.0,
+                  },
+                }
+              : 'right',
+        );
+    addTearDown(
+      () => TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(channel, null),
+    );
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: ThemeData(platform: TargetPlatform.iOS),
+        home: FloatingAdaptiveNavScaffold(
+          items: items,
+          currentIndex: 0,
+          onTap: (_) {},
+          body: const SafeArea(
+            child: SizedBox.expand(key: ValueKey('usable-content')),
+          ),
+        ),
+      ),
+    );
     await tester.pumpAndSettle();
-    final content = tester.getRect(find.byKey(const ValueKey('usable-content')));
+    final content = tester.getRect(
+      find.byKey(const ValueKey('usable-content')),
+    );
     expect(content.left, 24);
     expect(content.right, 370);
     expect(tester.getCenter(find.byIcon(Icons.home)).dx, 418);
     expect(tester.takeException(), isNull);
   });
-
 }

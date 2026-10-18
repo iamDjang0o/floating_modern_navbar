@@ -156,6 +156,30 @@ On the standalone bar:
 
 ## 6. Add scroll collapse
 
+For adaptive navigation, enable it directly on the host:
+
+```dart
+FloatingAdaptiveNavScaffold(
+  collapseOnScroll: true,
+  collapseDistance: 140,
+  items: items,
+  currentIndex: selectedIndex,
+  onTap: onTabSelected,
+  body: ListView.builder(
+    padding: const EdgeInsets.only(bottom: 120),
+    itemCount: 50,
+    itemBuilder: (context, index) => ListTile(title: Text('Item $index')),
+  ),
+)
+```
+
+Only the bottom bar collapses; Duo side rails stay fully expanded. Scroll up to
+expand again. No controller or scroll container is required. Horizontal and
+nested scrolling are ignored. Changing the selected tab or placement resets
+collapse. The bottom bar remains visible at the end of the list.
+
+### Standalone bottom bar with optional fading
+
 Use [the complete scroll example](examples/scroll.dart). Its important structure is:
 
 ```text
